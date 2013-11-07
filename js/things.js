@@ -34,11 +34,21 @@ $(function() {
     var Card24=new card(24,"polio (the actual polio virus) was never the plague it was made out to be.","mamakay",92);
     var Card25=new card(25,"The Kardashians are in league with Al-Qaeda","Johnathan Lee Riches",80);
     var Card26=new card(26,"many bad boys are overweight or otherwise physically unattractive.","Love Shy Wiki",114);
+    var Card27=new card(27,"The Latino people have never had a revolution","femalepharoe",75);
+    var Card28=new card(28,"Che Guevara failed spectacularly at everything he attempted in his life.","Conservapedia",15);
+    var Card29=new card(29,"Homosexual bait-and-switch is a technique used by covert homosexuals to convert heterosexuals to homosexuality, using deceit and powerful mind-control techniques.","GeorgeE",15);
+    var Card30=new card(30,"Light creates gravity. Since photons from the sky do not have mass their bombardment doesn't hurt, but they don't let you jump very high either.","Smithjustinb",75);
+    var Card31=new card(31,"Elisha Cuthbert has to pee sometimes, and that's hot.","Spurting",84);
+    var Card32=new card(32,"I want to punch a hippo right there in the face. He wouldn't even feel it, but I'd feel fuckin' ace.","nevski pazza",85);
+    var Card33=new card(33,"In alternate universes, mirror images of yourself are living out their lives, just as you are.","Burt Goldman",104);
+    var Card34=new card(34,"Everything will be okay if you just let me yiff the otter.","nekobe",100);
+    var Card35=new card(35,"Light is the most basic corrosive we know","theRhenn",35);
+    var Card36=new card(36,"Pour vegetable oil and flour into a baking dish and microwave at 70% power for 6 minutes. This will create a white roux","flatscat",26);
     
     //**********************//
     function DrawCard(players) {
         for (var i=1;i<(players+1);i++){ 
-            var num = Math.floor((Math.random()*25)+1);
+            var num = Math.floor((Math.random()*34)+1);
             randomcard = eval('Card'+num);
             if (randomcard.played == true || randomcard.discarded ==true) {
                 DrawCard(1);
