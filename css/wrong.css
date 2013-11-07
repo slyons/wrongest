@@ -1,0 +1,9 @@
+#wrap > .container { padding-top:60px; }
+
+
+/** Card Styley **/
+.card { background-color:#eee; border:4px solid #333; border-radius:12px; box-shadow:0 0 6px #666; min-height:340px; padding:20px }
+.card > span { display:block; }
+.card > p { font-style:italic; }
+    .card > p:before { content:"“"; }
+    .card > p:after { content:"”"; }
