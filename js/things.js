@@ -66,6 +66,10 @@ $(function() {
     var Card39=new card(39,"The smell of fresh pee isn't nasty and the residual dry smell is like a perfume.","Humidresearcher",52);
     var Card40=new card(40,"Forums are like the herpes of the internet","WillieDangDoodle",108);
     var Card41=new card(41,"There is no such thing as a “best” when it comes to sports or sports teams. It would take away the ability of people to have opinions.","Bangbangcoconut",90);
+    var Card42=new card(42,"Gucci Mane best rapper alive","youtube",0);
+    var Card43=new card(43,"The urinal is just for you as a man. It's impossible for her to use it.","The Spearhead",103);
+    var Card44=new card(44,"As of 2002, love went extinct","Msshardy",109);
+    var Card45=new card("Being a juggalo is just like being a normal person","unattributed",21);
 
     var deckcount = 41;
     var discardcount = 0;
@@ -76,15 +80,17 @@ $(function() {
             var num = Math.floor((Math.random()*41)+1);
             randomcard = eval('Card'+num);
             drawncard = "Card"+randomcard.number;
+            currentplayer = eval("Player"+i);
             if (randomcard.inplay === true || randomcard.discarded === true) {
                 DrawCard(i--);
             } else {
+                $('#Back'+i).children().children('.playername').text(currentplayer.name);
                 $('#Hand'+i).attr('data-deck',drawncard);
-                //alert();
                 $('#Hand'+i).children('span').children('.series').text(randomcard.number);
                 $('#Hand'+i).children('.quote').text(randomcard.quote);
                 $('#Hand'+i).children('small').children('.author').text(randomcard.author);
                 $('#Hand'+i).children('small').children('cite').text(randomcard.episode);
+                
                 randomcard.inplay=true;
                 deckcount--
             }
