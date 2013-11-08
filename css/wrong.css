@@ -1,9 +1,22 @@
-#wrap > .container { padding-top:60px; }
+#wrap > .container { padding-top:60px; padding-bottom:30px; }
+
+
+/** Mixins **/
+.floatRight { float: right; margin-left:4px; }
 
 
 /** Card Styley **/
-.card { background-color:#eee; border:4px solid #333; border-radius:12px; box-shadow:0 0 6px #666; min-height:340px; padding:20px }
-.card > span { display:block; }
-.card > p { font-style:italic; }
-    .card > p:before { content:"“"; }
-    .card > p:after { content:"”"; }
+.card { background-color:#eee; border:4px solid #333; border-radius:12px; box-shadow:0 0 6px #666; min-height:340px; padding:20px; position:
+relative; }
+    .card > span { display:block; }
+    .card > p { font-style:italic; font-size:180%; }
+        .card > p:before { content:"“"; }
+        .card > p:after { content:"”"; }
+        .card .btn { position:absolute; bottom:4px;  }
+            .card .btn.wrong { right:4px; }
+            .card .btn.right { left:4px; }
+    .card.marked { opacity:0.8; }
+    .card.marked.wrong { background-color:#d59896; }
+    .card.marked.right { background-color:#84cd84; }
+
+footer { position:fixed; bottom:0; left:0; right:0; }

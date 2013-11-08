@@ -4,9 +4,27 @@ $(function() {
         this.quote=quote;
         this.author=author;
         this.episode=episode;
+        this.inplay=false;
         this.played=false;
         this.discarded=false;
+        this.rightcount=0;
+        this.wrongcount=0;
     }
+    
+    function player(number,name) {
+        this.number=number;
+        this.name=name;
+        this.score=0;
+        votedwrong=false;
+        votedright=false;
+    }
+    var Player1=new player(1,"Jeremy Fernandez");
+    var Player2=new player(2,"VARZENDEH!!!");
+    var Player3=new player(3,"Humid Researcher");
+    var Player4=new player(4,"Hate Is Man");
+    
+    myPlayer = Player2;
+    
     var Card1=new card(1,"Clowns aer sexy.", "Sofonda Silicone", 113);
     var Card2=new card(2,"Not being turned on by bugs is unnatural", "Bugger", 95);
     var Card3=new card(3,"Liverpool fc is the best football team ever","lukepa",90);
@@ -21,8 +39,7 @@ $(function() {
     var Card12=new card(12,"The formation of planets is a lie. Climate science is a lie.","mnemeth1",75);
     var Card13=new card(13, "Two-Dimoensional love is controversial, yet not psychologically, philosophically or biologically wrong","anonymous",74);
     var Card14=new card(14,"Interpreters say there is no difference between night dreams and daytime dreams except about elephant.","Varzandeh",73);
-    var Card14=new card(15,"[Dolphins] know how to access multiple dimensions. This means they are simultaneously experiencing life in the ocean and life in an ontological world of multi-level subtle realities.","Joan Ocean",65);
-    var Card15=new card(15,"It is illegal to hide your face in public and this is why people do not like the KKK","professorbolin",64);
+    var Card14=new card(15,"[Dolphins] know how to access multiple dimensions.","Joan Ocean",65);
     var Card16=new card(16,"It is legal to post nude photos of someone without their consent","unattributed",64);
     var Card17=new card(17,"Laura Ingalls Wilder is God.","John Charles Wilson",30);
     var Card18=new card(18,"Disney’s Roadside Romeo has opened in India and it’s a huge hit. Let me repeat that: It’s a HUGE HIT.","Amid Amidi",36);
@@ -44,36 +61,87 @@ $(function() {
     var Card34=new card(34,"Everything will be okay if you just let me yiff the otter.","nekobe",100);
     var Card35=new card(35,"Light is the most basic corrosive we know","theRhenn",35);
     var Card36=new card(36,"Pour vegetable oil and flour into a baking dish and microwave at 70% power for 6 minutes. This will create a white roux","flatscat",26);
-    
+    var Card37=new card(37,"There is a way you can be a wizard in reality.","wikihow",44);
+    var Card38=new card(38,"Most people are not intellectual enough to understand Family Guy, making it superior.",90);
+    var Card39=new card(39,"The smell of fresh pee isn't nasty and the residual dry smell is like a perfume.","Humidresearcher",52);
+    var Card40=new card(40,"Forums are like the herpes of the internet","WillieDangDoodle",108);
+    var Card41=new card(41,"There is no such thing as a “best” when it comes to sports or sports teams. It would take away the ability of people to have opinions.","Bangbangcoconut",90);
+
+    var deckcount = 41;
+    var discardcount = 0;
+
     //**********************//
     function DrawCard(players) {
         for (var i=1;i<(players+1);i++){ 
-            var num = Math.floor((Math.random()*34)+1);
+            var num = Math.floor((Math.random()*41)+1);
             randomcard = eval('Card'+num);
-            if (randomcard.played == true || randomcard.discarded ==true) {
-                DrawCard(1);
+            drawncard = "Card"+randomcard.number;
+            if (randomcard.inplay === true || randomcard.discarded === true) {
+                DrawCard(i--);
             } else {
-                $('#Hand'+i).attr('data-deck',randomcard.number.toString());
+                $('#Hand'+i).attr('data-deck',drawncard);
                 //alert();
                 $('#Hand'+i).children('span').children('.series').text(randomcard.number);
                 $('#Hand'+i).children('.quote').text(randomcard.quote);
                 $('#Hand'+i).children('small').children('.author').text(randomcard.author);
                 $('#Hand'+i).children('small').children('cite').text(randomcard.episode);
-                randomcard.played=true;
+                randomcard.inplay=true;
+                deckcount--
             }
+        }
+        $('.indeck .count').text(deckcount);
+        $('.discarded .count').text(discardcount);
+    }
+    
+    function nextRoundCheck() {
+        if (myPlayer.votedright===true && myPlayer.votedwrong===true) {
+            $('#NextRound').removeAttr('disabled');    
         }
     }
     
-    $('.card .wrong').click(function() {
-        markcard = eval('Card'+$(this).parent().attr('data-deck'))
+    function newRound(players) {
+        DrawCard(4);
+        $('.card').removeClass('marked right wrong');
+        $('.card button').show();
+    }
+    
+    
+    $('.card button.wrong').click(function() {
+        markcard = eval($(this).parent().attr('data-deck'));
+        markcard.wrongcount++
+        $(this).parent('.card').addClass('marked wrong');
+        $(this).parent('.card').children('button').hide();
+        $('.card button.wrong').hide();
+        myPlayer.votedwrong = true;
+        nextRoundCheck();
+        
+        
+        //This needs to be more complex. Here's the simplified version....
+        markcard.played=true;
         markcard.discarded=false;
+        markcard.inplay=false;
+        deckcount++
     });
-     $('.card .unwrong').click(function() {
-        markcard = eval('Card'+$(this).parent().attr('data-deck'))
+    $('.card button.right').click(function() {
+        markcard = eval($(this).parent().attr('data-deck'));
+        markcard.rightcount++
+        $(this).parent('.card').addClass('marked right');
+        $(this).parent('.card').children('button').hide();
+        $('.card button.right').hide();
+        myPlayer.votedright=true;
+        nextRoundCheck();
+        
+        //This needs to be more complex. Here's the simplified version....
+        markcard.played=true;
         markcard.discarded=true;
+        markcard.inplay=false;
+        discardcount++
     });
     
-    DrawCard(2);
+    $('#NextRound').click(function() {
+       newRound(); 
+    });
     
     
+    DrawCard(4);
 });
