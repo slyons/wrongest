@@ -1,3 +1,9 @@
+/* jshint strict: false */
+/*global $:false */
+/*jshint -W061 */
+/*jshint -W065 */ //Missing radix parameter
+/*jshint devel:true */
+
 $(function() {
     function card(number, quote, author, episode) {
         this.number=number;
@@ -9,21 +15,29 @@ $(function() {
         this.discarded=false;
         this.rightcount=0;
         this.wrongcount=0;
+        this.score=0;
+        this.votesagainst=0;
+        this.votesfor=0;
     }
     
     function player(number,name) {
         this.number=number;
         this.name=name;
         this.score=0;
-        votedwrong=false;
-        votedright=false;
+        this.votedwrong=false;
+        this.votedright=false;
     }
-    var Player1=new player(1,"Jeremy Fernandez");
-    var Player2=new player(2,"VARZENDEH!!!");
-    var Player3=new player(3,"Humid Researcher");
-    var Player4=new player(4,"Hate Is Man");
+    $('.card button').hide();
     
-    myPlayer = Player2;
+    
+    // Set up default players.
+    var Player1=new player(1,"Jeremy Fernandez");
+    var Player2=new player(2,"Hate Is Man");
+    var Player3=new player(3,"Humid Researcher");
+    var Player4=new player(4,"Varzandeh");
+    
+    var myPlayer = Player2;
+    $('#NextRound').attr('disabled','disabled');
     
     var Card1=new card(1,"Clowns aer sexy.", "Sofonda Silicone", 113);
     var Card2=new card(2,"Not being turned on by bugs is unnatural", "Bugger", 95);
@@ -39,7 +53,7 @@ $(function() {
     var Card12=new card(12,"The formation of planets is a lie. Climate science is a lie.","mnemeth1",75);
     var Card13=new card(13, "Two-Dimoensional love is controversial, yet not psychologically, philosophically or biologically wrong","anonymous",74);
     var Card14=new card(14,"Interpreters say there is no difference between night dreams and daytime dreams except about elephant.","Varzandeh",73);
-    var Card14=new card(15,"[Dolphins] know how to access multiple dimensions.","Joan Ocean",65);
+    var Card15=new card(15,"[Dolphins] know how to access multiple dimensions.","Joan Ocean",65);
     var Card16=new card(16,"It is legal to post nude photos of someone without their consent","unattributed",64);
     var Card17=new card(17,"Laura Ingalls Wilder is God.","John Charles Wilson",30);
     var Card18=new card(18,"Disney’s Roadside Romeo has opened in India and it’s a huge hit. Let me repeat that: It’s a HUGE HIT.","Amid Amidi",36);
@@ -69,18 +83,47 @@ $(function() {
     var Card42=new card(42,"Gucci Mane best rapper alive","youtube",0);
     var Card43=new card(43,"The urinal is just for you as a man. It's impossible for her to use it.","The Spearhead",103);
     var Card44=new card(44,"As of 2002, love went extinct","Msshardy",109);
-    var Card45=new card("Being a juggalo is just like being a normal person","unattributed",21);
+    var Card45=new card(45,"Being a juggalo is just like being a normal person","unattributed",21);
+    var Card46=new card(46, "Warhammer 40,000 can make anything awesome.", "this troper", 60);
+    var Card47=new card(47,"There's nothing perverted about sniffing a pretty girl's seatcushion","quaps",66);
+    
 
-    var deckcount = 41;
+    var deckcount = 47;
     var discardcount = 0;
+    var players = 3;
+    var flipcard = 0;
 
     //**********************//
+    
+    function startGame() {
+        Player1.name=$('#Player1Name').val();
+        Player2.name=$('#Player2Name').val();
+        Player3.name=$('#Player3Name').val();
+        if (players < 3) {
+            $('.flip-container.player3').remove();
+        }
+        if (players < 2) {
+            $('.flip-container.player2').remove();
+        }
+        var i=1;
+        $('.flipper .back').each(function() {
+            $(this).children().children('.playername').text(eval('Player'+i+'.name'));
+            i++;
+        });
+        $('.row.setup').slideUp(200);
+        $('.row.allcards').fadeIn(400, function() {
+            $('.row.roundcontrol').slideDown(300);
+            $('.row.deckinfo').slideDown(300);
+        });
+        DrawCard(players);
+    }
+    
     function DrawCard(players) {
         for (var i=1;i<(players+1);i++){ 
             var num = Math.floor((Math.random()*41)+1);
-            randomcard = eval('Card'+num);
-            drawncard = "Card"+randomcard.number;
-            currentplayer = eval("Player"+i);
+            var randomcard = eval('Card'+num);
+            var drawncard = "Card"+randomcard.number;
+            var currentplayer = eval("Player"+i);
             if (randomcard.inplay === true || randomcard.discarded === true) {
                 DrawCard(i--);
             } else {
@@ -88,15 +131,40 @@ $(function() {
                 $('#Hand'+i).attr('data-deck',drawncard);
                 $('#Hand'+i).children('span').children('.series').text(randomcard.number);
                 $('#Hand'+i).children('.quote').text(randomcard.quote);
+                $('#Hand'+i).children('.score').text(randomcard.score);
+                if (randomcard.quote.length > 85) {
+                    $('#Hand'+i).children('.quote').addClass('long'); 
+                }
                 $('#Hand'+i).children('small').children('.author').text(randomcard.author);
                 $('#Hand'+i).children('small').children('cite').text(randomcard.episode);
                 
+                $('#Statement'+i).children('.quote').text(randomcard.quote);
+                $('#Statement'+i).children('.author').text(randomcard.author);
+                
                 randomcard.inplay=true;
-                deckcount--
+                deckcount--;
             }
         }
         $('.indeck .count').text(deckcount);
         $('.discarded .count').text(discardcount);
+    }
+    
+    function updateScores() {
+        $('.front.card').each(function() {
+            if ($(this).attr('data-votesfor') > 0) {
+                var awardplayer = parseInt($(this).attr('data-player'));
+                var awardvotes = parseInt($(this).attr('data-votesfor'));
+                awardplayer(awardplayer, awardvotes);
+            }
+        });
+    }
+    
+    function awardPoints(player, votes) {
+        
+    }
+    
+    function discardStuff() {
+        
     }
     
     function nextRoundCheck() {
@@ -106,48 +174,111 @@ $(function() {
     }
     
     function newRound(players) {
-        DrawCard(4);
+        $('.quote').removeClass('long');
+        $('.flip-container').removeClass('flipped active');
+        $('#NextRound').attr('disabled','disabled');
+        $('#HitMe').removeAttr('disabled');
         $('.card').removeClass('marked right wrong');
-        $('.card button').show();
+        $('.card button').hide();
+        myPlayer.votedwrong = false;
+        myPlayer.votedright = false;
+        updateScores();
+        discardStuff();
+        DrawCard(players);
     }
     
+    $('#NumberofPlayers').blur(function() {
+        if ($(this).val() > 3) {
+            alert('current limit is 3 players');
+            $(this).val(3);
+        } else if ($(this).val() < 1) {
+            alert("You can't have less than 1 players, idiot");
+            $(this).val(1);
+        } else if ($(this).val() == 3) {
+            $('').fadeOut(300);
+            $('.player-signin.player2, .player-signin.player3').fadeIn(300);
+            players = 2;
+        } else if ($(this).val() == 2) {
+            $('.player-signin.player3').fadeOut(300);
+            $('.player-signin.player2').fadeIn(300);
+            players = 2;
+        } else if ($(this).val() == 1) {
+            $('.player-signin.player3, .player-signin.player2').fadeOut(300);
+            players = 1;
+        } else {
+            alert($(this).val());
+        }
+    });
+    
+    $('#StartGame').click(function() {
+        if ($('#Player1Name').val() === "") {
+            alert('player 1 needs a name');
+        } else if ($('#Player2Name').val() === "" && players > 1) {
+            alert('player 2 needs a name');
+        } else if ($('#Player3Name').val() === "" && players > 2) {
+            alert('player 3 needs a name');
+        } else {
+            Player1.name=$('#Player1Name').val();
+            Player2.name=$('#Player2Name').val();
+            Player3.name=$('#Player3Name').val();
+            startGame();
+        }
+    });
+    
+    $('.flip-container').click(function() {
+        if (!$(this).hasClass('flipped')) {
+            $(this).toggleClass('active');
+            $(this).siblings('.flip-container').removeClass('active');
+        }
+    });
     
     $('.card button.wrong').click(function() {
-        markcard = eval($(this).parent().attr('data-deck'));
-        markcard.wrongcount++
+        var markcard = eval($(this).parent().attr('data-deck'));
+        markcard.wrongcount++;
         $(this).parent('.card').addClass('marked wrong');
         $(this).parent('.card').children('button').hide();
         $('.card button.wrong').hide();
         myPlayer.votedwrong = true;
+        markcard.score--;
+        markcard.votesagainst++;
+        $(this).parent('.card').attr('data-votesagainst',markcard.votesagainst);
+        $(this).parent('.card').attr('data-score',markcard.score);
+        $(this).parent('.card').children('.score').text(markcard.score);
         nextRoundCheck();
-        
-        
         //This needs to be more complex. Here's the simplified version....
         markcard.played=true;
         markcard.discarded=false;
         markcard.inplay=false;
-        deckcount++
+        deckcount++;
     });
     $('.card button.right').click(function() {
-        markcard = eval($(this).parent().attr('data-deck'));
-        markcard.rightcount++
+        var markcard = eval($(this).parent().attr('data-deck'));
+        markcard.rightcount++;
         $(this).parent('.card').addClass('marked right');
         $(this).parent('.card').children('button').hide();
         $('.card button.right').hide();
         myPlayer.votedright=true;
+        markcard.score++;
+        markcard.votesfor++;
+        $(this).parent('.card').attr('data-votesfor',markcard.votesfor);
+        $(this).parent('.card').attr('data-score',markcard.score);
+        $(this).parent('.card').children('.score').text(markcard.score);
         nextRoundCheck();
         
         //This needs to be more complex. Here's the simplified version....
         markcard.played=true;
         markcard.discarded=true;
         markcard.inplay=false;
-        discardcount++
+        discardcount++;
     });
     
+    $('#HitMe').click(function() {
+        $('.card button').fadeIn(800);
+        $('.flip-container').removeClass('active hover');
+        $('.flip-container').addClass('flipped');
+        $(this).attr('disabled','disabled');
+    });
     $('#NextRound').click(function() {
-       newRound(); 
+       newRound(players); 
     });
-    
-    
-    DrawCard(4);
 });

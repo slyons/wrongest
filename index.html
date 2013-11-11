@@ -8,12 +8,13 @@
         <meta name="description" content="">
         <meta name="author" content="">
         
-        <title>Wrongest</title>
+        <title>The Wrongest Words</title>
         
         <!-- Bootstrap core CSS -->
         <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,400italic' rel='stylesheet' type='text/css'>
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
         <link href="css/wrong.css" rel="stylesheet" />
-        
     </head>
     
     <body>
@@ -57,95 +58,90 @@
             
             <!-- Begin page content -->
             <div class="container">
-                <div class="page-header">
-                    <h1>The Wrongest Words</h1>
+                
+                <div class="row setup">
+                    <div class="col-xs-12">
+                        <div class="col-xs-3 player-signin numberofplayers">
+                            <input type="number" id="NumberofPlayers" min="1" max="3" placeholder="# of Players" />
+                        </div>
+                        <div class="col-xs-3 player-signin player1">
+                            <input type="text" id="Player1Name" placeholder="Player 1 Name" />
+                        </div>
+                        <div class="col-xs-3 player-signin player2">
+                            <input type="text" id="Player2Name" placeholder="Player 2 Name" />
+                        </div>
+                        <div class="col-xs-3 player-signin player3">
+                            <input type="text" id="Player3Name" placeholder="Player 3 Name" />
+                        </div>
+                    </div>
+                    
+                    <div class="row" style="padding-top:60px">
+                        <div class="col-xs-4 col-xs-offset-4">
+                            <button class="btn btn-block btn-primary" id="StartGame">Begin</button>
+                        </div>
+                    </div>
                 </div>
                 
-                <!-- <div class="row">
+                <div class="row allcards">
                     <div class="col-xs-12">
-                        <blockquote class="col-xs-3 wrong card" id="Hand1">
-                            <span>Card #<span class="series">0</span></span>
-                            <p class="quote">I am a playing card</p>
-                            <small><span class="author">Vladomir Fakename</span> (episode <cite>000</cite>)</small>
-                            <button class="btn btn-success right">Trueish</button>
-                            <button class="btn btn-danger wrong">Most Wrong</button>
-                        </blockquote>
-                        <blockquote class="col-xs-3 wrong card" id="Hand2">
-                            <span>Card #<span class="series">0</span></span>
-                            <p class="quote">I am a playing card</p>
-                            <small><span class="author">Vladomir Fakename</span> (episode <cite>000</cite>)</small>
-                            <button class="btn btn-success right">Trueish</button>
-                            <button class="btn btn-danger wrong">Most Wrong</button>
-                        </blockquote>
-                        <blockquote class="col-xs-3 wrong card" id="Hand3">
-                            <span>Card #<span class="series">0</span></span>
-                            <p class="quote">I am a playing card</p>
-                            <small><span class="author">Vladomir Fakename</span> (episode <cite>000</cite>)</small>
-                            <button class="btn btn-success right">Trueish</button>
-                            <button class="btn btn-danger wrong">Most Wrong</button>
-                        </blockquote>
-                        <blockquote class="col-xs-3 wrong card" id="Hand4">
-                            <span>Card #<span class="series">0</span></span>
-                            <p class="quote">I am a playing card</p>
-                            <small><span class="author">Vladomir Fakename</span> (episode <cite>000</cite>)</small>
-                            <button class="btn btn-success right">Trueish</button>
-                            <button class="btn btn-danger wrong">Most Wrong</button>
-                        </blockquote>
-                    </div>
-                </div> -->
-                
-                <div class="row">
-                    <div class="col-xs-12">
-                        <div class="col-xs3 flip-container">
+                        <div class="col-xs-3 flip-container player1">
                             <div class="flipper">
-                                <div class="front" id="Back1">
+                                <div class="back" id="Back1">
                                     <h1><span class="playername">zzz</span>'s Card</h1>
                                 </div>
-                                <div class="back wrong card" id="Hand1">
+                                <div class="front card" id="Hand1" data-player="1">
                                     <span>Card #<span class="series">0</span></span>
                                     <p class="quote">I am a playing card</p>
                                     <small><span class="author">Vladomir Fakename</span> (episode <cite>000</cite>)</small>
-                                    <button class="btn btn-success right">Trueish</button>
-                                    <button class="btn btn-danger wrong">Most Wrong</button>
+                                    <button class="btn btn-success right"><i class="fa fa-thumbs-up"></i></button>
+                                    <button class="btn btn-danger wrong"><i class="fa fa-thumbs-down"></i></button>
+                                    <span class="score">222</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xs3 flip-container">
+                        <div class="col-xs-3 flip-container player2">
                             <div class="flipper">
-                                <div class="front" id="Back2">
+                                <div class="back" id="Back2">
                                     <h1><span class="playername">zzz</span>'s Card</h1>
                                 </div>
-                                <div class="back wrong card" id="Hand2">
+                                <div class="front card" id="Hand2" data-player="2">
                                     <span>Card #<span class="series">0</span></span>
                                     <p class="quote">I am a playing card</p>
                                     <small><span class="author">Vladomir Fakename</span> (episode <cite>000</cite>)</small>
-                                    <button class="btn btn-success right">Trueish</button>
-                                    <button class="btn btn-danger wrong">Most Wrong</button>
+                                    <button class="btn btn-lg btn-success right"><i class="fa fa-thumbs-o-up"></i></button>
+                                    <button class="btn btn-lg btn-danger wrong"><i class="fa fa-thumbs-o-down"></i></button>
+                                    <span class="score">222</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xs3 flip-container">
+                        <div class="col-xs-3 flip-container player3">
                             <div class="flipper">
-                                <div class="front" id="Back3">
+                                <div class="back" id="Back3">
                                     <h1><span class="playername">zzz</span>'s Card</h1>
                                 </div>
-                                <div class="back wrong card" id="Hand3">
+                                <div class="front card" id="Hand3" data-player="3">
                                     <span>Card #<span class="series">0</span></span>
                                     <p class="quote">I am a playing card</p>
                                     <small><span class="author">Vladomir Fakename</span> (episode <cite>000</cite>)</small>
-                                    <button class="btn btn-success right">Trueish</button>
-                                    <button class="btn btn-danger wrong">Most Wrong</button>
+                                    <button class="btn btn-success right"><i class="fa fa-check"></i></button>
+                                    <button class="btn btn-danger wrong"><i class="fa fa-times"></i></button>
+                                    <span class="score">222</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="row">
-                    <button class="btn-lg btn-block btn btn-primary" disabled="disabled" id="NextRound">Next Round</button>
+                <div class="row roundcontrol">
+                    <div class="col-xs-4">
+                        <button class="btn btn-lg btn-block btn-warning" id="HitMe">I'm ready to vote</button>
+                    </div>
+                    <div class="col-xs-4 col-xs-offset-2">
+                        <button class="btn btn-lg btn-block btn-primary" id="NextRound">Next Round Please</button>
+                    </div>
                 </div>
                 
-                <div class="row">
+                <div class="row deckinfo">
                     <div class="col-xs-4 indeck">
                         Left in deck: <span class="count">0</span>
                     </div>
