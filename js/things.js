@@ -133,7 +133,7 @@ $(function() {
             var currentplayer = eval("Player"+i);
 
             $('#Back'+i).children().children('.playername').text(currentplayer.name);
-            $('#Hand'+i).attr('data-deck',drawncard);
+            $('#Hand'+i).attr('data-deck',num);
             $('#Hand'+i).children('span').children('.series').text(randomcard.number);
             $('#Hand'+i).children('.quote').text(randomcard.quote);
             $('#Hand'+i).children('.score').text(randomcard.score);
@@ -242,7 +242,7 @@ $(function() {
     });
     
     $('.card button.wrong').click(function() {
-        var markcard = eval($(this).parent().attr('data-deck'));
+        var markcard = eval(Deck[$(this).attr('data-deck')]);
         markcard.wrongcount++;
         $(this).parent('.card').addClass('marked wrong');
         $(this).parent('.card').children('button').hide();

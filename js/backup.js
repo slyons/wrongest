@@ -233,6 +233,7 @@ $(function() {
     });
     
     $('.card button.wrong').click(function() {
+        alert('hi there');
         var markcard = eval($(this).parent().attr('data-deck'));
         markcard.wrongcount++;
         $(this).parent('.card').addClass('marked wrong');
