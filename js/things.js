@@ -103,9 +103,9 @@ $(function() {
     //**********************//
     
     function startGame() {
-        Player1.name=$('#Player1Name').val();
-        Player2.name=$('#Player2Name').val();
-        Player3.name=$('#Player3Name').val();
+        if (players < 3) {
+            $('.flip-container.player4').remove();
+        }
         if (players < 3) {
             $('.flip-container.player3').remove();
         }
@@ -131,28 +131,22 @@ $(function() {
             var randomcard = Deck[num];
             var drawncard = Deck[num];
             var currentplayer = eval("Player"+i);
-
             $('#Back'+i).children().children('.playername').text(currentplayer.name);
             $('#Hand'+i).attr('data-deck',num);
             $('#Hand'+i).children('span').children('.series').text(randomcard.number);
             $('#Hand'+i).children('.quote').text(randomcard.quote);
             $('#Hand'+i).children('.score').text(randomcard.score);
-            if (randomcard.quote.length > 85) {
+            if (randomcard.quote.length > 75) {
                 $('#Hand'+i).children('.quote').addClass('long'); 
+            }
+            if (randomcard.quote.length > 100) {
+                $('#Hand'+i).children('.quote').removeClass('long').addClass('longer'); 
             }
             $('#Hand'+i).children('small').children('.author').text(randomcard.author);
             $('#Hand'+i).children('small').children('cite').text(randomcard.episode);
             
             $('#Statement'+i).children('.quote').text(randomcard.quote);
-            $('#Statement'+i).children('.author').text(randomcard.author);
-            
-            randomcard.inplay=true;
-                deckcount--;
-                        
-            var tempcard = randomcard;
-            Deck[num] = Deck[deckend];
-            Deck[deckend] = tempcard;
-            deckend--;                       
+            $('#Statement'+i).children('.author').text(randomcard.author);                   
         }
         $('.indeck .count').text(deckcount);
         $('.discarded .count').text(discardcount);
@@ -183,7 +177,7 @@ $(function() {
     }
     
     function newRound(players) {
-        $('.quote').removeClass('long');
+        $('.quote').removeClass('long longer');
         $('.flip-container').removeClass('flipped active');
         $('#NextRound').attr('disabled','disabled');
         $('#HitMe').removeAttr('disabled');
@@ -191,28 +185,30 @@ $(function() {
         $('.card button').hide();
         myPlayer.votedwrong = false;
         myPlayer.votedright = false;
-        updateScores();
-        discardStuff();
+        //updateScores();
+        //discardStuff();
         DrawCard(players);
     }
     
     $('#NumberofPlayers').blur(function() {
-        if ($(this).val() > 3) {
-            alert('current limit is 3 players');
+        if ($(this).val() > 4) {
+            alert('current limit is 4 players');
             $(this).val(3);
         } else if ($(this).val() < 1) {
             alert("You can't have less than 1 players, idiot");
             $(this).val(1);
+        } else if ($(this).val() == 4) {
+            $('.player-signin.player2, .player-signin.player3, .player-signin.player4').fadeIn(300);
         } else if ($(this).val() == 3) {
-            $('').fadeOut(300);
+            $('.player-signin.player4').fadeOut(300);
             $('.player-signin.player2, .player-signin.player3').fadeIn(300);
             players = 2;
         } else if ($(this).val() == 2) {
-            $('.player-signin.player3').fadeOut(300);
+            $('.player-signin.player3, .player-signin.player4').fadeOut(300);
             $('.player-signin.player2').fadeIn(300);
             players = 2;
         } else if ($(this).val() == 1) {
-            $('.player-signin.player3, .player-signin.player2').fadeOut(300);
+            $('.player-signin.player4, .player-signin.player3, .player-signin.player2').fadeOut(300);
             players = 1;
         } else {
             alert($(this).val());
@@ -220,18 +216,20 @@ $(function() {
     });
     
     $('#StartGame').click(function() {
-        if ($('#Player1Name').val() === "") {
-            alert('player 1 needs a name');
-        } else if ($('#Player2Name').val() === "" && players > 1) {
-            alert('player 2 needs a name');
-        } else if ($('#Player3Name').val() === "" && players > 2) {
-            alert('player 3 needs a name');
-        } else {
+        if ($('#Player1Name').val() !== "") {
             Player1.name=$('#Player1Name').val();
-            Player2.name=$('#Player2Name').val();
-            Player3.name=$('#Player3Name').val();
-            startGame();
         }
+        if ($('#Player2Name').val() !== "") {
+            Player2.name=$('#Player2Name').val();
+        }
+        if ($('#Player3Name').val() !== "") {
+            Player3.name=$('#Player3Name').val();
+        }
+        if ($('#Player4Name').val() !== "") {
+            Player3.name=$('#Player4Name').val();
+        }
+        players = $('#NumberofPlayers').val();
+        startGame();
     });
     
     $('.flip-container').click(function() {
@@ -242,7 +240,8 @@ $(function() {
     });
     
     $('.card button.wrong').click(function() {
-        var markcard = eval(Deck[$(this).attr('data-deck')]);
+        var cardnum = parseInt($(this).parent().attr('data-deck'));
+        var markcard = eval(Deck[cardnum]);
         markcard.wrongcount++;
         $(this).parent('.card').addClass('marked wrong');
         $(this).parent('.card').children('button').hide();
@@ -261,7 +260,8 @@ $(function() {
         deckcount++;
     });
     $('.card button.right').click(function() {
-        var markcard = eval($(this).parent().attr('data-deck'));
+        var cardnum = parseInt($(this).parent().attr('data-deck'));
+        var markcard = eval(Deck[cardnum]);
         markcard.rightcount++;
         $(this).parent('.card').addClass('marked right');
         $(this).parent('.card').children('button').hide();
