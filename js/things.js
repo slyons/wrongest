@@ -129,7 +129,12 @@ $(function() {
         for (var i=1;i<(players+1);i++){ 
             var num = Math.floor((Math.random()*deckend)+0);
             var randomcard = Deck[num];
+            while (randomcard.inplay === true || randomcard.discarded === true) {
+                var num = Math.floor((Math.random()*deckend)+0);
+                var randomcard = Deck[num];
+            }
             var drawncard = Deck[num];
+            drawncard.inplay = true;
             var currentplayer = eval("Player"+i);
             $('#Back'+i).children().children('.playername').text(currentplayer.name);
             $('#Hand'+i).attr('data-deck',num);
@@ -148,8 +153,6 @@ $(function() {
             $('#Statement'+i).children('.quote').text(randomcard.quote);
             $('#Statement'+i).children('.author').text(randomcard.author);                   
         }
-        $('.indeck .count').text(deckcount);
-        $('.discarded .count').text(discardcount);
     }
     
     function updateScores() {
@@ -167,7 +170,26 @@ $(function() {
     }
     
     function discardStuff() {
-        
+        $('.front.card').each(function() {
+            var num = parseInt($(this).attr('data-deck'));
+            var cardscore = parseInt($(this).attr('data-score'));
+            if (cardscore > 0) {
+                Deck[num].discarded = true;
+                discardcount++;
+            } else if (cardscore > -2) {
+                var coinflip = Math.floor((Math.random()*3)+1);
+                if (coinflip != 2) {
+                    Deck[num].discarded = true;
+                    discardcount++
+                } else {
+                    deckcount++
+                }
+            } else {
+                // Card has a very low score.
+                deckcount++
+            }
+            Deck[num].inplay = false;
+        });
     }
     
     function nextRoundCheck() {
@@ -253,10 +275,8 @@ $(function() {
         $(this).parent('.card').attr('data-score',markcard.score);
         $(this).parent('.card').children('.score').text(markcard.score);
         nextRoundCheck();
+        
         //This needs to be more complex. Here's the simplified version....
-        markcard.played=true;
-        markcard.discarded=false;
-        markcard.inplay=false;
         deckcount++;
     });
     $('.card button.right').click(function() {
@@ -275,9 +295,6 @@ $(function() {
         nextRoundCheck();
         
         //This needs to be more complex. Here's the simplified version....
-        markcard.played=true;
-        markcard.discarded=true;
-        markcard.inplay=false;
         discardcount++;
     });
     
