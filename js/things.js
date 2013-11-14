@@ -91,10 +91,6 @@ $(function() {
     var decksize = 46;  // total number of cards in game
     var deckend = 46;   // index of last available card in deck
     
-
-    
-
-
     var deckcount = 47;
     var discardcount = 0;
     var players = 3;
@@ -123,6 +119,8 @@ $(function() {
             $('.row.deckinfo').slideDown(300);
         });
         DrawCard(players);
+        $('.indeck .count').text(deckcount);
+        $('.discarded .count').text(discardcount);
     }
     
     function DrawCard(players) {
@@ -130,10 +128,11 @@ $(function() {
             var num = Math.floor((Math.random()*deckend)+0);
             var randomcard = Deck[num];
             while (randomcard.inplay === true || randomcard.discarded === true) {
-                var num = Math.floor((Math.random()*deckend)+0);
-                var randomcard = Deck[num];
+                num = Math.floor((Math.random()*deckend)+0);
+                randomcard = Deck[num];
             }
             var drawncard = Deck[num];
+            deckcount--;
             drawncard.inplay = true;
             var currentplayer = eval("Player"+i);
             $('#Back'+i).children().children('.playername').text(currentplayer.name);
@@ -155,18 +154,23 @@ $(function() {
         }
     }
     
-    function updateScores() {
+    function awardPoints(player, votes) {
         $('.front.card').each(function() {
-            if ($(this).attr('data-votesfor') > 0) {
-                var awardplayer = parseInt($(this).attr('data-player'));
-                var awardvotes = parseInt($(this).attr('data-votesfor'));
-                awardplayer(awardplayer, awardvotes);
+            var votesfor = parseInt($(this).attr('data-votesfor'));
+            if (votesfor > 0) {
+                //var num = parseInt($(this).attr('data-deck'));
+                var playerslot = parseInt($(this).attr('data-player'));
+                var thisplayer = eval("Player"+playerslot);
+                var multiplier = parseInt($(this).attr('data-score'));
+                if (multiplier < 0) {
+                    multiplier = Math.abs(multiplier);
+                } else {
+                    multiplier=1;
+                }
+                thisplayer.score = thisplayer.score + (1 * multiplier);
+                $(this).siblings('.back').children('h3').children('.score').text(thisplayer.score);
             }
         });
-    }
-    
-    function awardPoints(player, votes) {
-        
     }
     
     function discardStuff() {
@@ -180,15 +184,20 @@ $(function() {
                 var coinflip = Math.floor((Math.random()*3)+1);
                 if (coinflip != 2) {
                     Deck[num].discarded = true;
-                    discardcount++
+                    discardcount++;
                 } else {
-                    deckcount++
+                    deckcount++;
                 }
             } else {
                 // Card has a very low score.
-                deckcount++
+                deckcount++;
             }
-            Deck[num].inplay = false;
+            Deck[num].inplay=false;
+            Deck[num].votesfor=0;
+            Deck[num].votesagainst=0;
+            $(this).removeAttr('data-deck data-votesagainst data-votesfor data-score');
+            $('.indeck .count').text(deckcount);
+            $('.discarded .count').text(discardcount);
         });
     }
     
@@ -207,8 +216,8 @@ $(function() {
         $('.card button').hide();
         myPlayer.votedwrong = false;
         myPlayer.votedright = false;
-        //updateScores();
-        //discardStuff();
+        awardPoints();
+        discardStuff();
         DrawCard(players);
     }
     
@@ -263,11 +272,11 @@ $(function() {
     
     $('.card button.wrong').click(function() {
         var cardnum = parseInt($(this).parent().attr('data-deck'));
-        var markcard = eval(Deck[cardnum]);
+        var markcard = Deck[cardnum];
         markcard.wrongcount++;
         $(this).parent('.card').addClass('marked wrong');
-        $(this).parent('.card').children('button').hide();
-        $('.card button.wrong').hide();
+        //$(this).parent('.card').children('button').hide();
+        //$('.card button.wrong').hide();
         myPlayer.votedwrong = true;
         markcard.score--;
         markcard.votesagainst++;
@@ -275,17 +284,14 @@ $(function() {
         $(this).parent('.card').attr('data-score',markcard.score);
         $(this).parent('.card').children('.score').text(markcard.score);
         nextRoundCheck();
-        
-        //This needs to be more complex. Here's the simplified version....
-        deckcount++;
     });
     $('.card button.right').click(function() {
         var cardnum = parseInt($(this).parent().attr('data-deck'));
-        var markcard = eval(Deck[cardnum]);
+        var markcard = Deck[cardnum];
         markcard.rightcount++;
         $(this).parent('.card').addClass('marked right');
-        $(this).parent('.card').children('button').hide();
-        $('.card button.right').hide();
+        //$(this).parent('.card').children('button').hide();
+        //$('.card button.right').hide();
         myPlayer.votedright=true;
         markcard.score++;
         markcard.votesfor++;
@@ -293,9 +299,6 @@ $(function() {
         $(this).parent('.card').attr('data-score',markcard.score);
         $(this).parent('.card').children('.score').text(markcard.score);
         nextRoundCheck();
-        
-        //This needs to be more complex. Here's the simplified version....
-        discardcount++;
     });
     
     $('#HitMe').click(function() {
