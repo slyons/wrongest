@@ -35,6 +35,11 @@ $(function() {
     var Player2=new player(2,"Hate Is Man");
     var Player3=new player(3,"Humid Researcher");
     var Player4=new player(4,"Varzandeh");
+    var Player5=new player(5,"Sofonda Silicone");
+    var Player6=new player(6,"C. Loverfield");
+    var Player7=new player(7,"Tom Hiddleston");
+    var Player8=new player(8,"Matt Crow");
+    
     
     var myPlayer = Player2;
     $('#NextRound').attr('disabled','disabled');
@@ -86,27 +91,34 @@ $(function() {
     new card(44,"As of 2002, love went extinct","Msshardy",109),
     new card(45,"Being a juggalo is just like being a normal person","unattributed",21),
     new card(46, "Warhammer 40,000 can make anything awesome.", "this troper", 60),
-    new card(47,"There's nothing perverted about sniffing a pretty girl's seatcushon","quaps",66)];
+    new card(47,"There's nothing perverted about sniffing a pretty girl's seatcushon","quaps",66),
+    new card(48,"Minors find it difficult to masturbate.","AWOL",115),
+    new card(49,"Man used to live for hundreds of years disease free.","winddance",38)];
     
-    var decksize = 46;  // total number of cards in game
-    var deckend = 46;   // index of last available card in deck
-    
-    var deckcount = 47;
-    var discardcount = 0;
-    var players = 3;
-    var flipcard = 0;
+    var deckcount = 48; // Total number of cards in the game (minus one)
+    var discardcount = 0; //Number of cards which have been discarded.
+    var players = 4; // Default number of players (overwritten later);
 
     //**********************//
     
     function startGame() {
-        if (players < 3) {
+        if (players < 8) {
+            $('.flip-container.player8').remove();
+        }
+        if (players < 7) {
+            $('.flip-container.player7').remove();
+        }
+        if (players < 6) {
+            $('.flip-container.player6').remove();
+        }
+        if (players < 5) {
+            $('.flip-container.player5').remove();
+        }
+        if (players < 4) {
             $('.flip-container.player4').remove();
         }
         if (players < 3) {
             $('.flip-container.player3').remove();
-        }
-        if (players < 2) {
-            $('.flip-container.player2').remove();
         }
         var i=1;
         $('.flipper .back').each(function() {
@@ -125,10 +137,10 @@ $(function() {
     
     function DrawCard(players) {
         for (var i=1;i<(players+1);i++){ 
-            var num = Math.floor((Math.random()*deckend)+0);
+            var num = Math.floor((Math.random()*deckcount)+0);
             var randomcard = Deck[num];
             while (randomcard.inplay === true || randomcard.discarded === true) {
-                num = Math.floor((Math.random()*deckend)+0);
+                num = Math.floor((Math.random()*deckcount)+0);
                 randomcard = Deck[num];
             }
             var drawncard = Deck[num];
@@ -221,26 +233,35 @@ $(function() {
         DrawCard(players);
     }
     
-    $('#NumberofPlayers').blur(function() {
-        if ($(this).val() > 4) {
-            alert('current limit is 4 players');
+    $('#NumberofPlayers').change(function() {
+        if ($(this).val() > 8) {
+            alert("You really shouldn't have less than 8 players.");
             $(this).val(3);
-        } else if ($(this).val() < 1) {
-            alert("You can't have less than 1 players, idiot");
+        } else if ($(this).val() < 3) {
+            alert("The mechanics of this game don't really work with less than 3 players. Find another friend.");
             $(this).val(1);
+        } else if ($(this).val() == 8) {
+            $('.player-signin.player4, .player-signin.player5, .player-signin.player6, .player-signin.player7, .player-signin.player8').fadeIn(300);
+            players = 8;
+        } else if ($(this).val() == 7) {
+            $('.player-signin.player8').fadeOut(300);
+            $('.player-signin.player4, .player-signin.player5, .player-signin.player6, .player-signin.player7').fadeIn(300);
+            players = 7;
+        } else if ($(this).val() == 6) {
+            $('.player-signin.player7, .player-signin.player8').fadeOut(300);
+            $('.player-signin.player4, .player-signin.player5, .player-signin.player6,').fadeIn(300);
+            players = 6;
+        } else if ($(this).val() == 5) {
+            $('.player-signin.player6, .player-signin.player7, .player-signin.player8').fadeOut(300);
+            $('.player-signin.player5, .player-signin.player4').fadeIn(300);
+            players = 5;
         } else if ($(this).val() == 4) {
-            $('.player-signin.player2, .player-signin.player3, .player-signin.player4').fadeIn(300);
+            $('.player-signin.player4').fadeIn(300);
+            $('.player-signin.player5, .player-signin.player6, .player-signin.player7, .player-signin.player8').fadeOut(300);
+            players = 4;
         } else if ($(this).val() == 3) {
-            $('.player-signin.player4').fadeOut(300);
-            $('.player-signin.player2, .player-signin.player3').fadeIn(300);
-            players = 2;
-        } else if ($(this).val() == 2) {
-            $('.player-signin.player3, .player-signin.player4').fadeOut(300);
-            $('.player-signin.player2').fadeIn(300);
-            players = 2;
-        } else if ($(this).val() == 1) {
-            $('.player-signin.player4, .player-signin.player3, .player-signin.player2').fadeOut(300);
-            players = 1;
+            $(' .player-signin.player4, .player-signin.player5, .player-signin.player6, .player-signin.player7, .player-signin.player8').fadeOut(300);
+            players = 3;
         } else {
             alert($(this).val());
         }
@@ -257,7 +278,7 @@ $(function() {
             Player3.name=$('#Player3Name').val();
         }
         if ($('#Player4Name').val() !== "") {
-            Player3.name=$('#Player4Name').val();
+            Player4.name=$('#Player4Name').val();
         }
         players = $('#NumberofPlayers').val();
         startGame();
