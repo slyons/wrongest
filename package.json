@@ -1,0 +1,28 @@
+{
+  "name": "wrongest",
+  "version": "0.0.0",
+  "description": "The wrongest game for the wrongest people",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.4.1",
+    "socket.io": "^1.0.4",
+    "node-uuid": "^1.4.1",
+  },
+  "devDependencies": {
+    "mocha": "^1.20.1",
+    "expect.js": "^4.4.1"
+  },
+  "scripts": {
+    "test": "node_modules/.bin/mocha --reporter spec --growl tests.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/slyons/wrongest.git"
+  },
+  "author": "Scott Lyons",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/slyons/wrongest/issues"
+  },
+  "homepage": "https://github.com/slyons/wrongest"
+}
