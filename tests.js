@@ -25,6 +25,7 @@ describe("The Wrongest unit tests", function() {
 	});
 
 	after(function(done){
+
 		gameServer.stop();
 
 		debug.disconnect();
@@ -33,7 +34,7 @@ describe("The Wrongest unit tests", function() {
 	});
 
 	beforeEach(function(done){
-		
+
 		client1 = io.connect("http://localhost:3000", options ={
 	      transports: ['websocket'],
 	      'force new connection': true,
@@ -55,6 +56,8 @@ describe("The Wrongest unit tests", function() {
 
 	afterEach(function(done){
 
+
+
 		if(client2.connected) {
 			client2.disconnect();
 		}
@@ -62,7 +65,11 @@ describe("The Wrongest unit tests", function() {
 		if(client1.connected) {
 			client1.disconnect();
 		}
+
+
 		
+		debug.emit("reset");
+
 		done();
 	});
 
@@ -94,13 +101,30 @@ describe("The Wrongest unit tests", function() {
 			});
 		});
 
+		it("must cleanup clients when they leave", function(done) {
+			client1.on("welcome", function(data) {
+				expect(data).to.have.property("success");
+				expect(data.success).to.be.ok();
+
+				client1.disconnect();
+				setTimeout(function() {
+					debug.emit("people", function(peopleList) {
+						expect(Object.keys(peopleList).length).to.eql(0);
+						done();
+					});
+				}, 30);
+			});
+
+			client1.on("connect", function() {
+				client1.emit("hello", "scottD");
+			});
+		});
+
 		it("must not allow duplicate usernames", function(done) {
 			client2.on("welcome", function(data){
 				expect(data).to.have.property("success");
 				expect(data.success).to.not.be.ok();
 				done();
-				client2.removeAllListeners("welcome");
-
 			});
 			client1.emit("hello", "scottB");
 			client2.emit("hello", "scottB");
@@ -127,10 +151,4 @@ describe("The Wrongest unit tests", function() {
 		});
 		
 	});
-
-	describe("cleanup", function(done){
-
-		it
-
-	})
 });

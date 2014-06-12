@@ -4,6 +4,7 @@
 	Everybody lies, nobody wins
 */
 
+var debug = require("debug")("wrongest.root");
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
@@ -18,14 +19,12 @@ app.get('/', function (req, res) {
 	res.sendfile(__dirname + '/public/index.html');
 });
 
-
-
 exports.start = function(listenPort) {
 	if (listenPort == undefined) {
 		listenPort = port;
 	}
 	server.listen(listenPort, function() {
-		console.log('Server listening at port %d', listenPort);
+		debug('Server listening at port %d', listenPort);
 	});
 
 	var wrongestGame = require("./game.js");
@@ -34,7 +33,7 @@ exports.start = function(listenPort) {
 
 exports.stop = function() {
 	server.close();
-	console.log("Closing server...");
+	debug("Closing server...");
 };
 
 
