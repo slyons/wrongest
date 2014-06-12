@@ -1,19 +1,20 @@
 var io = require('socket.io-client'),
 	assert = require('assert'),
 	util = require('util'),
-	expect = require('expect.js');
+	expect = require('expect.js'),
+	behaviors = require("./tests/behaviors.js");
 
 var gameServer = require("./server/server.js");
 
 describe("The Wrongest unit tests", function() {
 
 	var client1, client2;
-	var debug;
+	var debugClient;
 
 	before(function(done){
 		gameServer.start();
 
-		debug = io.connect("http://localhost:3000/debug", options ={
+		debugClient = io.connect("http://localhost:3000/debug", options ={
 	      transports: ['websocket'],
 	      'force new connection': true,
 	      'reconnection delay' : 0,
@@ -28,7 +29,7 @@ describe("The Wrongest unit tests", function() {
 
 		gameServer.stop();
 
-		debug.disconnect();
+		debugClient.disconnect();
 
 		done();
 	});
@@ -56,8 +57,6 @@ describe("The Wrongest unit tests", function() {
 
 	afterEach(function(done){
 
-
-
 		if(client2.connected) {
 			client2.disconnect();
 		}
@@ -66,9 +65,7 @@ describe("The Wrongest unit tests", function() {
 			client1.disconnect();
 		}
 
-
-		
-		debug.emit("reset");
+		debugClient.emit("reset");
 
 		done();
 	});
@@ -80,9 +77,15 @@ describe("The Wrongest unit tests", function() {
 	*/
 	describe("pre-game", function() {
 
-		it("must allow clients to join", function(done) {
+		it("must allow clients to login", function(done) {
 
-			client1.on("welcome", function(data){
+			behaviors.login(function(err, client, data){
+				expect(data).to.have.property("success");
+				expect(data.success).to.be.ok();
+				done();
+			});
+
+			/*client1.on("welcome", function(data){
 				expect(data).to.have.property("success");
 				expect(data.success).to.be.ok();
 
@@ -98,7 +101,7 @@ describe("The Wrongest unit tests", function() {
 
 			client1.on("connect", function() {
 				client1.emit("hello", "scottA");
-			});
+			});*/
 		});
 
 		it("must cleanup clients when they leave", function(done) {
@@ -108,11 +111,11 @@ describe("The Wrongest unit tests", function() {
 
 				client1.disconnect();
 				setTimeout(function() {
-					debug.emit("people", function(peopleList) {
+					debugClient.emit("people", function(peopleList) {
 						expect(Object.keys(peopleList).length).to.eql(0);
 						done();
 					});
-				}, 30);
+				}, 10);
 			});
 
 			client1.on("connect", function() {
@@ -136,6 +139,7 @@ describe("The Wrongest unit tests", function() {
 			client1.on("welcome", function(data){
 				expect(data).to.have.property("success");
 				expect(data.success).to.be.ok();
+
 				client1.on("roomUpdate", function(data){
 					expect(data).to.have.property("success");
 					expect(data).to.have.property("roomOwner");
@@ -149,6 +153,16 @@ describe("The Wrongest unit tests", function() {
 
 			client1.emit("hello", "scottC");
 		});
+
+		/*it("must alert others when someone new joins", function(done) {
+			client1.on("roomUpdate", function(data){
+				expect(data).to.have.property("success");
+				expect(data.success).to.be.ok();
+				expect(data.players.length).to.be.eql(2);
+				done();
+			});
+		});
+		*/
 		
 	});
 });

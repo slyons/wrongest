@@ -61,6 +61,7 @@ exports.start = function(io) {
 						people[client.id].room = roomName;
 						client.room = roomName;
 						client.join(roomName);
+						client.emit("join", {success:true});
 						io.sockets.in(roomName).emit("roomUpdate", {success:true, players:room.players, roomOwner:room.owner});
 					}
 					else
