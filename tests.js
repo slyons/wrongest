@@ -2,6 +2,7 @@ var io = require('socket.io-client'),
 	assert = require('assert'),
 	util = require('util'),
 	expect = require('expect.js'),
+	async = require("async"),
 	behaviors = require("./tests/behaviors.js");
 
 var gameServer = require("./server/server.js");
@@ -79,11 +80,16 @@ describe("The Wrongest unit tests", function() {
 
 		it("must allow clients to login", function(done) {
 
-			behaviors.login(function(err, client, data){
+			behaviors.loginXUsers(5, function(result, clients) {
+				expect(result).to.be.ok();
+				expect(clients.length).to.be.eql(5);
+				done();
+			});
+			/*behaviors.login(function(err, client, data){
 				expect(data).to.have.property("success");
 				expect(data.success).to.be.ok();
 				done();
-			});
+			});*/
 
 			/*client1.on("welcome", function(data){
 				expect(data).to.have.property("success");

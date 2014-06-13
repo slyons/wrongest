@@ -75,7 +75,7 @@ exports.start = function(io) {
 
 		});
 
-		client.on("disconnect", function() {
+		var clientQuits = function() {
 			if(client.id in clients) {
 				var c = clients[client.id];
 				if(people[client.id].room !== null) {
@@ -89,7 +89,10 @@ exports.start = function(io) {
 				delete people[client.id];
 				delete clients[client.id];
 			}
-		});
+		};
+
+		client.on("disconnect", clientQuits);
+		client.on("goodbye", clientQuits);
 	});
 
 	io.of("/debug")

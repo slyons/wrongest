@@ -17,6 +17,13 @@ var doConnect = function(cb) {
     });
 };
 
+var doDisconnect = function(client, cb) {
+	client.on("disconnect", function() {
+		cb(null, client);
+	});
+	client.disconnect();
+};
+
 var doLogin = function(client, cb) {
 	var username = uuid.v4();
 	client.username = username;
@@ -26,7 +33,7 @@ var doLogin = function(client, cb) {
 	client.emit("hello", username);
 };
 
-var doJoinRoom = function(client, rmName, cb) {
+var doJoinRoom = function(rmName, client, cb) {
 	client.on("join", function(data) {
 		client.room = rmName;
 		cb(null, client, data);
@@ -35,3 +42,17 @@ var doJoinRoom = function(client, rmName, cb) {
 };
 
 exports.login = async.compose(doLogin, doConnect);
+exports.makeJoiner = function(rmName) {
+	return async.apply(doJoinRoom, rmName);
+};
+exports.loginXUsers = function(userCount, callback) {
+	async.times(userCount, function(n, next) {
+		exports.login(next);
+	}, function(err, clients){
+		async.every(clients, function(c, cb){
+			cb(c.connected);
+		}, function(result) {
+			callback(result, clients);
+		});
+	});
+}
