@@ -3,6 +3,7 @@ var uuid = require("node-uuid");
 var async = require("async");
 var io = require('socket.io-client');
 var util = require("util");
+var testutils = require("./utils.js");
 
 var doConnect = function(cb) {
 	var client = io.connect("http://localhost:3000", options ={
@@ -23,16 +24,30 @@ var doDisconnect = function(client, cb) {
 	});
 	client.disconnect();
 };
+exports.disconnect = doDisconnect;
 
-var doLogin = function(client, cb) {
-	var username = uuid.v4();
+/*
+	LOGIN
+
+	Send: ("hello", <username>)
+	Receive: ("welcome", {success:<boolean>, message:<string>})
+*/
+var doLogin = function(client, username, cb) {
 	client.username = username;
+
+
 	client.on("welcome", function(data) {
 		cb(null, client, data);
 	});
 	client.emit("hello", username);
 };
 
+/*
+	JOIN
+
+	Send: ("join", <room name>)
+	Receive: ("join", {success:<boolean>, message:<string>})
+*/
 var doJoinRoom = function(rmName, client, cb) {
 	client.on("join", function(data) {
 		client.room = rmName;
@@ -41,10 +56,17 @@ var doJoinRoom = function(rmName, client, cb) {
 	client.emit("join", rmName);
 };
 
-exports.login = async.compose(doLogin, doConnect);
-exports.makeJoiner = function(rmName) {
-	return async.apply(doJoinRoom, rmName);
+// Generates random usernames
+var generateRandomUsername = testutils.usernameGG(uuid.v4);
+
+exports.login = async.compose(doLogin, generateRandomUsername, doConnect);
+exports.loginWithUsername = function(username) {
+	return async.compose(
+		doLogin,
+		testutils.usernameGG(function(){ return username; }),
+		doConnect);
 };
+
 exports.loginXUsers = function(userCount, callback) {
 	async.times(userCount, function(n, next) {
 		exports.login(next);
@@ -52,7 +74,18 @@ exports.loginXUsers = function(userCount, callback) {
 		async.every(clients, function(c, cb){
 			cb(c.connected);
 		}, function(result) {
-			callback(result, clients);
+			callback(clients, {success:result});
 		});
 	});
 }
+
+// Generates random room names
+var generateRandomRoomName = testutils.roomGG(uuid.v4);
+
+// Partial room joining function. Simply give it a client and a callback
+// and it will send the client there
+exports.joinRoom = function(rmName) {
+	return async.apply(doJoinRoom, rmName);
+}
+exports.joinRandomRoom = async.compose(doJoinRoom, generateRandomRoomName);
+

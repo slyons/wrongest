@@ -79,96 +79,80 @@ describe("The Wrongest unit tests", function() {
 	describe("pre-game", function() {
 
 		it("must allow clients to login", function(done) {
-
-			behaviors.loginXUsers(5, function(result, clients) {
-				expect(result).to.be.ok();
-				expect(clients.length).to.be.eql(5);
+			behaviors.login(function(err, client, data) {
+				expect(data.success).to.be.ok();
+				expect(client.connected).to.be.ok();
 				done();
 			});
-			/*behaviors.login(function(err, client, data){
-				expect(data).to.have.property("success");
-				expect(data.success).to.be.ok();
-				done();
-			});*/
-
-			/*client1.on("welcome", function(data){
-				expect(data).to.have.property("success");
-				expect(data.success).to.be.ok();
-
-				client2.on("welcome", function(data){
-					expect(data).to.have.property("success");
-					expect(data.success).to.be.ok();
-					
-					done();
-				});
-
-				client2.emit("hello", "fred");
-			});
-
-			client1.on("connect", function() {
-				client1.emit("hello", "scottA");
-			});*/
 		});
 
 		it("must cleanup clients when they leave", function(done) {
-			client1.on("welcome", function(data) {
-				expect(data).to.have.property("success");
+			behaviors.login(function(err, client, data) {
 				expect(data.success).to.be.ok();
-
-				client1.disconnect();
-				setTimeout(function() {
-					debugClient.emit("people", function(peopleList) {
-						expect(Object.keys(peopleList).length).to.eql(0);
-						done();
-					});
-				}, 10);
+				expect(client.connected).to.be.ok();
+				behaviors.disconnect(client, function(client){
+					setTimeout(function() {
+						debugClient.emit("people", function(peopleList) {
+							expect(Object.keys(peopleList).length).to.eql(0);
+							done();
+						});
+					}, 10);
+				});
 			});
 
-			client1.on("connect", function() {
-				client1.emit("hello", "scottD");
-			});
 		});
 
 		it("must not allow duplicate usernames", function(done) {
-			client2.on("welcome", function(data){
-				expect(data).to.have.property("success");
-				expect(data.success).to.not.be.ok();
-				done();
+			behaviors.loginWithUsername("scott")(function(err, c, d) {
+				expect(d.success).to.be.ok();
+				behaviors.loginWithUsername("scott")( function(err, c, d) {
+					expect(d.success).to.not.be.ok();
+					done();
+				});
 			});
-			client1.emit("hello", "scottB");
-			client2.emit("hello", "scottB");
 		});
 
 		it("must allow rooms to be joined", function(done) {
 			
-
-			client1.on("welcome", function(data){
-				expect(data).to.have.property("success");
+			behaviors.login(function(err, client, data) {
 				expect(data.success).to.be.ok();
+				expect(client.connected).to.be.ok();
 
-				client1.on("roomUpdate", function(data){
-					expect(data).to.have.property("success");
-					expect(data).to.have.property("roomOwner");
-					expect(data).to.have.property("players");
+				behaviors.joinRandomRoom(client, function(err, client, data) {
 					expect(data.success).to.be.ok();
-
 					done();
 				});
-				client1.emit("join", "testRoom");
 			});
-
-			client1.emit("hello", "scottC");
 		});
 
-		/*it("must alert others when someone new joins", function(done) {
-			client1.on("roomUpdate", function(data){
-				expect(data).to.have.property("success");
+		it("must alert others when someone new joins or leaves", function(done) {
+
+			behaviors.loginXUsers(2, function(clients, data) {
 				expect(data.success).to.be.ok();
-				expect(data.players.length).to.be.eql(2);
-				done();
+
+				clients[0].on("roomUpdate", function(data){
+					if(data.players.length >=2)
+						done();
+				});
+
+				async.map(clients, behaviors.joinRoom("room-testroom"), function(err, results){
+
+				});
+
+				
 			});
+
+			/*behaviors.login(function(err, client, data) {
+
+				client.on("roomUpdate", function(data){
+					expect(data.players.length).to.be.eql(2);
+					done();
+				});
+
+				behaviors.login(function(){});
+			});*/
+
 		});
-		*/
 		
 	});
 });
