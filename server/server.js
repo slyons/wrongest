@@ -27,7 +27,7 @@ exports.start = function(listenPort) {
 		debug('Server listening at port %d', listenPort);
 	});
 
-	var wrongestGame = require("./game.js");
+	var wrongestGame = require("./rooms.js");
 	wrongestGame.start(io);
 };
 

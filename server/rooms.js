@@ -1,7 +1,7 @@
 /*
-	game.js
+	rooms.js
 
-	Wrongest game logic
+	Wrongest rooms/user logic
 
 */
 
@@ -14,13 +14,62 @@ var people = {},
 	rooms  = {},
 	clients = {};
 
+function Room(name, id, owner, io) {
+	this.name = name;
+	this.id = id;
+	this.owner = owner;
+	this.players = [];
+	this.status = "available";
+	this.socket = io.sockets.in(name);
+	this.log = debug("wrongest-room-" + name);
+
+	events.EventEmitter.call(this);
+};
+util.inherits(Room, events.EventEmitter);
+
+Room.prototype.addPerson = function(personID) {
+	if (this.status === "available" && !(personID in this.players)) {
+		this.players.push(personID);
+		this.emit("playerJoined", personID);
+		this.log("Player " + personID + " joined. Players:" + this.players);
+	}
+};
+
+Room.prototype.removePerson = function(personID) {
+	this.players = this.players.filter(function(p){ p === personID; });
+	this.emit("playerLeft", personID);
+	this.socket.emit("roomUpdate", {success:true, players:room.players, roomOwner:room.owner});
+	this.log("Player " + personID + " left. Players:" + this.players);
+};
+
+Room.prototype.containsPlayer = function(playerID) {
+	return playerID in this.players;
+};
+
+Room.prototype.playerCount = function() {
+	return this.players.length;
+};
+
+function RoomManagerObject() {
+	this.rooms = {};
+}
+util.inherits(RoomManagerObject, events.EventEmitter);
+
+RoomManagerObject.prototype.getRoom = function(name) {
+	return this.rooms[name];
+};
+
+RoomManagerObject.prototype.add = function(name, owner) {
+
+}
+
 exports.start = function(io) {
 	people = {};
 	rooms = {};
 	clients = {};
 
 	io.on("connection", function (client){
-		var log = debug("wrongest."+client.id);
+		var log = debug("wrongest.rooms."+client.id);
 
 		client.on("hello", function (name) {
 			log("hello:", arguments);
@@ -42,7 +91,7 @@ exports.start = function(io) {
 		});
 
 		client.on("join", function(roomName){
-			log("join:", arguments);
+			log("joining %s", roomName);
 
 			if(!(client.id in people)) {
 				log("Has not hello'd yet!");
@@ -53,16 +102,16 @@ exports.start = function(io) {
 					log("Is trying to double-dip");
 					client.emit("join", {success:false, message:"You are already in a room!"});
 				} else {
-					var room = rooms[roomName] || new Room(roomName, uuid.v4(), client.id);
+					var room = rooms[roomName] || new Room(roomName, uuid.v4(), client.id, io);
 					if(room.status === "available")
 					{
-						log("Is joining room %s", roomName);
+						log("has joined room %s", roomName);
 						room.addPerson(client.id);
 						people[client.id].room = roomName;
 						client.room = roomName;
 						client.join(roomName);
 						client.emit("join", {success:true});
-						io.sockets.in(roomName).emit("roomUpdate", {success:true, players:room.players, roomOwner:room.owner});
+						//io.sockets.in(roomName).emit("roomUpdate", {success:true, players:room.players, roomOwner:room.owner});
 					}
 					else
 					{
@@ -76,6 +125,7 @@ exports.start = function(io) {
 		});
 
 		var clientQuits = function() {
+			log("Quitting");
 			if(client.id in clients) {
 				var c = clients[client.id];
 				if(people[client.id].room !== null) {
@@ -83,7 +133,6 @@ exports.start = function(io) {
 					var room = rooms[roomName];
 					room.removePerson(client.id);
 					c.leave(roomName);
-					io.sockets.in(roomName).emit("roomUpdate", {success:true, players:room.players, roomOwner:room.owner});
 				}
 
 				delete people[client.id];
@@ -115,31 +164,4 @@ exports.start = function(io) {
 			clients = {};
 		});
 	})
-};
-
-function Room(name, id, owner) {
-	this.name = name;
-	this.id = id;
-	this.owner = owner;
-	this.players = [];
-	this.status = "available";
-
-	events.EventEmitter.call(this);
-};
-
-util.inherits(Room, events.EventEmitter);
-
-Room.prototype.addPerson = function(personID) {
-	if (this.status === "available" && !(personID in this.players)) {
-		this.players.push(personID);
-		this.emit("playerJoined", personID);
-	}
-};
-
-Room.prototype.removePerson = function(personID) {
-	this.players = this.players.filter(function(p){ p === personID; });
-}
-
-Room.prototype.containsPlayer = function(playerID) {
-	return playerID in this.players;
 };

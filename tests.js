@@ -129,10 +129,20 @@ describe("The Wrongest unit tests", function() {
 
 			behaviors.loginXUsers(2, function(clients, data) {
 				expect(data.success).to.be.ok();
+				var c2Name = clients[1].username;
 
 				clients[0].on("roomUpdate", function(data){
 					if(data.players.length >=2)
-						done();
+					{
+						clients[1].on("roomUpdate", function(data) {
+							if(data.players[0] === clients[1].username)
+								done();
+							else
+								console.log("nope2");
+						});
+						behaviors.disconnect(clients[0], null);
+					}
+					else {console.log("nope1");}
 				});
 
 				async.map(clients, behaviors.joinRoom("room-testroom"), function(err, results){
