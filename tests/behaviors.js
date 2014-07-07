@@ -84,8 +84,6 @@ var generateRandomRoomName = testutils.roomGG(uuid.v4);
 
 // Partial room joining function. Simply give it a client and a callback
 // and it will send the client there
-exports.joinRoom = function(rmName) {
-	return async.apply(doJoinRoom, rmName);
-}
+exports.joinRoom = doJoinRoom;
 exports.joinRandomRoom = async.compose(doJoinRoom, generateRandomRoomName);
 

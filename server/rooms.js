@@ -20,25 +20,18 @@ function Room(name, id, owner, io) {
 	this.owner = owner;
 	this.players = [];
 	this.status = "available";
-	this.socket = io.sockets.in(name);
 	this.log = debug("wrongest-room-" + name);
-
-	events.EventEmitter.call(this);
 };
-util.inherits(Room, events.EventEmitter);
 
 Room.prototype.addPerson = function(personID) {
 	if (this.status === "available" && !(personID in this.players)) {
 		this.players.push(personID);
-		this.emit("playerJoined", personID);
 		this.log("Player " + personID + " joined. Players:" + this.players);
 	}
 };
 
 Room.prototype.removePerson = function(personID) {
-	this.players = this.players.filter(function(p){ p === personID; });
-	this.emit("playerLeft", personID);
-	this.socket.emit("roomUpdate", {success:true, players:room.players, roomOwner:room.owner});
+	this.players.splice(this.players.indexOf(personID), 1)
 	this.log("Player " + personID + " left. Players:" + this.players);
 };
 
@@ -49,19 +42,6 @@ Room.prototype.containsPlayer = function(playerID) {
 Room.prototype.playerCount = function() {
 	return this.players.length;
 };
-
-function RoomManagerObject() {
-	this.rooms = {};
-}
-util.inherits(RoomManagerObject, events.EventEmitter);
-
-RoomManagerObject.prototype.getRoom = function(name) {
-	return this.rooms[name];
-};
-
-RoomManagerObject.prototype.add = function(name, owner) {
-
-}
 
 exports.start = function(io) {
 	people = {};
@@ -106,12 +86,13 @@ exports.start = function(io) {
 					if(room.status === "available")
 					{
 						log("has joined room %s", roomName);
-						room.addPerson(client.id);
+						// Should probably improve this at some point
+						room.addPerson(people[client.id].name);
 						people[client.id].room = roomName;
 						client.room = roomName;
 						client.join(roomName);
 						client.emit("join", {success:true});
-						//io.sockets.in(roomName).emit("roomUpdate", {success:true, players:room.players, roomOwner:room.owner});
+						io.sockets.in(roomName).emit("roomUpdate", {success:true, players:room.players, roomOwner:room.owner});
 					}
 					else
 					{
@@ -131,8 +112,9 @@ exports.start = function(io) {
 				if(people[client.id].room !== null) {
 					var roomName = c.room;
 					var room = rooms[roomName];
-					room.removePerson(client.id);
+					room.removePerson(people[client.id].name);
 					c.leave(roomName);
+					io.sockets.in(roomName).emit("roomUpdate", {success:true, players:room.players, roomOwner:room.owner});
 				}
 
 				delete people[client.id];
